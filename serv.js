@@ -1,7 +1,7 @@
 import {WebSocketServer} from 'ws';
 
 const server = new WebSocketServer({
-  port: 8080
+  port: 8081
 });
 
 let sockets = [];
