@@ -22,6 +22,13 @@ script/bootstrap
 - SDXL Turbo on Coreweave
 - LCM (different versions) on Replicate
 
+## Run on Windows + OpenVINO platform
+* simple STT server which provides text stream transcribed by a local audio input(microphone) 
+```
+node sttstream_serv.js
+```
+* integrate `textstream_cli.py` into your SDXL-turbo jupyter notebook 
+
 ## Learnin's
 
 - Whisper CPP is easy to get running locally, and it's pretty fast.
