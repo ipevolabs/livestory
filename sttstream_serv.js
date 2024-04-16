@@ -9,7 +9,11 @@ import fs from "fs";
 import { platform } from 'node:process';
 dotenv.config();
 
+//todo: mkdir if not exist
 const outputDirectory = "./output";
+
+process.stdout.setEncoding('utf8');
+process.stderr.setEncoding('utf8');
 let frameNumber = 0;
 
 // clean up output dir
@@ -66,10 +70,11 @@ async function generateImage(speechData) {
 function constructWhisperStreamCommand() {
   const whpath='./whisper.cpp';
   const modelpath=`${whpath}/models`;
-  const longCommand=`${whpath}/stream -m ${modelpath}/ggml-base.en.bin -t 8 --step 500 --length 5000`;
+  let longCommand=`${whpath}/stream -m ${modelpath}/ggml-base.en.bin -t 8 --step 500 --length 5000`;
   if (process.platform === "win32" ) {
-     //whpath
+    longCommand= path.win32.normalize(longCommand);
   }
+  console.log('command =', longCommand);
   const cmdparts = longCommand.split(/\s+/);
   return {
         maincmd: cmdparts[0],
@@ -81,10 +86,10 @@ function constructWhisperStreamCommand() {
 const {maincmd, args} = constructWhisperStreamCommand()
 const listen = spawn( maincmd, args, { shell: true });
 
-/*
+
 listen.stderr.on('data', (data) => {
   console.error(`stderr: ${data}`);
-});*/
+});
 
 listen.stdout.on("data", async (chunk) => {
   generateImage(String(chunk));
