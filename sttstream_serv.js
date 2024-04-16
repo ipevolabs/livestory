@@ -4,9 +4,11 @@ import stripAnsi from "strip-ansi";
 import dotenv from "dotenv";
 // import download from 'download'
 import path from "path";
-import WebSocket from "ws";
+import {WebSocketServer} from 'ws';
 import fs from "fs";
 import { platform } from 'node:process';
+
+
 dotenv.config();
 
 //todo: mkdir if not exist
@@ -41,7 +43,7 @@ ws.on("message", (data) => {
 });
 */
 
-async function generateImage(speechData) {
+async function generatePrompt(speechData) {
   const crazyWhisperPrompt = stripAnsi(speechData)
     .replace(/[\r\n]+/g, " ")
     .replace(/\[.*?\]/g, "")
@@ -92,7 +94,27 @@ listen.stderr.on('data', (data) => {
 });
 
 listen.stdout.on("data", async (chunk) => {
-  generateImage(String(chunk));
+  generatePrompt(String(chunk));
 });
 
 listen.stdout.on("end", () => {});
+
+// websocket server stuff
+const server = new WebSocketServer({
+  port: 8081
+});
+
+let sockets = [];
+server.on('connection', function(socket) {
+  sockets.push(socket);
+
+  // When you receive a message, send that message to every socket.
+  socket.on('message', function(msg) {
+    sockets.forEach(s => s.send(msg));
+  });
+
+  // When a socket closes, or disconnects, remove it from the array.
+  socket.on('close', function() {
+    sockets = sockets.filter(s => s !== socket);
+  });
+});
