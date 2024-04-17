@@ -29,20 +29,8 @@ fs.readdir(outputDirectory, (err, files) => {
   }
 });
 
-/*
-ws.on("open", () => {
-  console.log("Connected to WebSocket server");
-});
-
-ws.on("message", (data) => {
-  const uniqueFileName = `coreweave_output_${frameNumber}.jpg`;
-  fs.writeFileSync(path.join(outputDirectory, uniqueFileName), data);
-  fs.writeFileSync(path.join(outputDirectory, "_latest.jpg"), data);
-  console.log(`Image saved as ${uniqueFileName}`);
-  frameNumber += 1;
-});
-*/
-
+// sockets for clients
+let sockets = [];
 async function generatePrompt(speechData) {
   const crazyWhisperPrompt = stripAnsi(speechData)
     .replace(/[\r\n]+/g, " ")
@@ -65,6 +53,10 @@ async function generatePrompt(speechData) {
     console.log("no prompt yet!");
   } else {
     console.log('sending prompt:' + crazyWhisperPrompt)
+    //tell every client the prompt
+    sockets.forEach( (s) => {
+      s.send(crazyWhisperPrompt)
+    });
   }
 }
 
@@ -104,13 +96,14 @@ const server = new WebSocketServer({
   port: 8081
 });
 
-let sockets = [];
 server.on('connection', function(socket) {
   sockets.push(socket);
-
-  // When you receive a message, send that message to every socket.
-  socket.on('message', function(msg) {
-    sockets.forEach(s => s.send(msg));
+  // receive a command
+  socket.on('message', function(cmd) {
+    sockets.forEach( (s) => {
+      //todo: implement the command handler
+      //s.send(msg)
+    });
   });
 
   // When a socket closes, or disconnects, remove it from the array.
