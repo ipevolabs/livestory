@@ -28,7 +28,9 @@ script/bootstrap
 node sttstream_serv.js
 ```
 * integrate `textstream_cli.py` into your SDXL-turbo jupyter notebook 
-
+```
+pip install websocket-client
+```
 ## Learnin's
 
 - Whisper CPP is easy to get running locally, and it's pretty fast.
