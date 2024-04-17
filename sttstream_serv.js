@@ -42,10 +42,10 @@ async function generatePrompt(speechData) {
     .trim();
 
   if (crazyWhisperPrompt.toLowerCase().includes("humans")) {
-    HUMANS = true;
+    //HUMANS = true;
     console.log("HUMANS HAS BEEN SAID!");
   } else if (crazyWhisperPrompt.toLowerCase().includes("void")) {
-    HUMANS = false;
+    //HUMANS = false;
     frameNumber = 0;
   }
 
@@ -60,11 +60,21 @@ async function generatePrompt(speechData) {
   }
 }
 
+
+let input_args= process.argv.slice(2);
 // construct a cross platform command
 function constructWhisperStreamCommand() {
   const whpath='./whisper.cpp';
   const modelpath=`${whpath}/models`;
-  let longCommand=`${whpath}/stream -m ${modelpath}/ggml-base.en.bin -t 8 --step 500 --length 5000`;
+  // ggml-base.bin ggml-base.en.bin ggml-large-v3-q5_0.bin
+  // ggml-large-v3.bin ggml-medium-q5_0.bin ggml-medium.bin ggml-small-q5_1.bin ggml-small.bin ggml-small.en-q5_1.bin
+  // ggml-base.en-q5_1.bin
+  let longCommand=`${whpath}/stream -m ${modelpath}/ggml-base.en.bin -t 8 -vth 0.2 --step 500 --length 5000`;
+  if ( input_args.length >0 && input_args[0]==='zh' ) {
+     console.log('to transcribe/translate Chinese');
+     longCommand=`${whpath}/stream -m ${modelpath}/ggml-small.bin -l zh -tr -t 12 --length 5000`;
+  }
+
   if (process.platform === "win32" ) {
     longCommand= path.win32.normalize(longCommand);
   }
